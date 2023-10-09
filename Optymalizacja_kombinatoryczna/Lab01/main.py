@@ -1,6 +1,6 @@
-def generate_matrix(matrixSize):
+def generate_matrix(matrix_size):
     global matrix
-    matrix = {x: {y: 0 for y in range(matrixSize)} for x in range(matrixSize)}
+    matrix = {x: {y: 0 for y in range(matrix_size)} for x in range(matrix_size)}
 
 
 def add_vertex():
@@ -10,17 +10,16 @@ def add_vertex():
 
 
 def highest_vertex():
-    highest = 0
-    for elem in matrix:
-        if elem > highest:
-            highest = elem
-    return highest
+    return max(matrix.keys(), default=0)
 
 
-def remove_vertex(vertex):
-    for i in range(len(matrix)):
-        matrix[i].pop(vertex)
-    matrix.pop(vertex)
+def remove_vertex(v):
+    if v in matrix:
+        for i in range(len(matrix)):
+            matrix[i].pop(v)
+        matrix.pop(v)
+    else:
+        print("Vertex does not exist")
 
 
 def print_matrix():
@@ -28,34 +27,44 @@ def print_matrix():
         print(elem, matrix[elem])
 
 
-def add_edge(vertex1, vertex2):
-    matrix[vertex1][vertex2] = 1
-    matrix[vertex2][vertex1] = 1
+def add_edge(v1, v2):
+    if v1 not in matrix or v2 not in matrix:
+        print("Vertex does not exist")
+        return
+    matrix[v1][v2] = 1
+    matrix[v2][v1] = 1
 
 
-def remove_edge(vertex1, vertex2):
-    matrix[vertex1][vertex2] = 0
-    matrix[vertex2][vertex1] = 0
+def remove_edge(v1, v2):
+    if v1 in matrix and v2 not in matrix:
+        print("Vertex does not exist")
+    else:
+        matrix[v1][v2] = 0
+        matrix[v2][v1] = 0
 
 
 def sum_of_edges():
-    sums = {}
-    for elem in matrix:
-        sums[elem] = sum(matrix[elem].values())
-    return sums
+    sums = {v: sum(matrix[v].values()) for v in matrix}
+    sorted_sums = dict(sorted(sums.items(), key=lambda item: item[1], reverse=True))
+    return sorted_sums
 
 
 def highest_sum():
     sums = sum_of_edges()
-    highest = max(sums.values())
-    return highest
+    highest = max(sums.items(), key=lambda item: item[1])
+    return {highest[0]: highest[1]}
 
 
 def lowest_sum():
     sums = sum_of_edges()
-    lowest = min(sums.values())
-    return lowest
+    lowest = min(sums.items(), key=lambda item: item[1])
+    return {lowest[0]: lowest[1]}
 
+
+def amount_of_even_and_odd():
+    even = sum(1 for v in matrix if sum(matrix[v].values()) % 2 == 0)
+    odd = len(matrix) - even
+    return {"even": even, "odd": odd}
 
 
 size = int(input("Enter the size of the matrix: "))
@@ -70,7 +79,8 @@ while True:
     print("6. Sum of edges")
     print("7. Highest sum")
     print("8. Lowest sum")
-    print("9. Exit")
+    print("9. Amount of even and odd")
+    print("10. Exit")
     choice = int(input("Enter your choice: "))
     if choice == 1:
         add_vertex()
@@ -94,6 +104,8 @@ while True:
     elif choice == 8:
         print(lowest_sum())
     elif choice == 9:
+        print(amount_of_even_and_odd())
+    elif choice == 10:
         break
     else:
         print("Invalid choice")
