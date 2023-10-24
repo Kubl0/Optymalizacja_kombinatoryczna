@@ -1,0 +1,1 @@
+Zaimplementuj algorytm DFS przeszukiwania dowolnego grafu nieskierowanego prostego oraz wyznaczający dla niego drzewo spinające DFS.

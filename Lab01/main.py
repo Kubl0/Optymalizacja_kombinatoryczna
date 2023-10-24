@@ -66,7 +66,6 @@ def amount_of_even_and_odd():
     odd = len(matrix) - even
     return {"even": even, "odd": odd}
 
-
 size = int(input("Enter the size of the matrix: "))
 generate_matrix(size)
 
