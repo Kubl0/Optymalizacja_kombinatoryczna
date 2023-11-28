@@ -1,70 +1,63 @@
 import networkx as nx
-import numpy as np
 
 
-def euclidean_distance(point1, point2):
-    return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+def triangle(e1, e2, e3):
+    return e1 + e2 >= e3 and e1 + e3 >= e2 and e2 + e3 >= e1
 
 
-def create_complete_graph(points):
+def traingle_inequality(G):
+    for node in G.nodes():
+        for neighbor in G.neighbors(node):
+            for neighbor2 in G.neighbors(node):
+                if neighbor != neighbor2:
+                    if not triangle(G[node][neighbor]['weight'], G[node][neighbor2]['weight'],
+                                    G[neighbor][neighbor2]['weight']):
+                        return False
+    return True
+
+
+def christofides(G):
+    if not traingle_inequality(G):
+        return Exception("Graph does not satisfy triangle inequality")
+
+    # 1
+    T = nx.minimum_spanning_tree(G)
+
+    # 2
+    O = [v for v, d in T.degree() if d % 2 == 1]
+
+    M = nx.Graph()
+    M.add_nodes_from(O)
+    for u in O:
+        for v in O:
+            if u < v and G.has_edge(u, v):
+                M.add_edge(u, v, weight=G[u][v]['weight'])
+    M = nx.max_weight_matching(M, maxcardinality=True)
+
+    # 3
+    H = nx.MultiGraph(T)
+    H.add_edges_from(M)
+
+    # 4
+    eulerian_circuit = nx.eulerian_circuit(H)
+
+    # 5
+    hamiltonian_circuit = [u for u, v in eulerian_circuit]
+
+    weight = 0
+    for i in range(len(hamiltonian_circuit) - 1):
+        weight += G[hamiltonian_circuit[i]][hamiltonian_circuit[i + 1]]['weight']
+
+    return hamiltonian_circuit, weight
+
+
+if __name__ == "__main__":
     G = nx.Graph()
-    for i in range(len(points)):
-        for j in range(i + 1, len(points)):
-            distance = euclidean_distance(points[i], points[j])
-            G.add_edge(i, j, weight=distance)
-    return G
+    # G.add_nodes_from([0, 1, 2, 3, 4, 5])
+    # G.add_weighted_edges_from([(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 4), (1, 3, 5), (2, 3, 6), (2, 4, 7), (2, 5, 8), (3, 4, 9), (3, 5, 10), (4, 5, 11)])
 
+    G.add_nodes_from([0, 1, 2, 3, 4])
+    G.add_weighted_edges_from(
+        [(0, 1, 1), (0, 2, 1), (0, 3, 2), (0, 4, 3), (1, 2, 2), (1, 3, 2), (1, 4, 3), (2, 3, 3), (2, 4, 2), (3, 4, 2)])
 
-def minimum_spanning_tree(graph):
-    return nx.minimum_spanning_tree(graph)
-
-
-def odd_vertices(subgraph):
-    odd = []
-    for node in subgraph.nodes():
-        if subgraph.degree(node) % 2 != 0:
-            odd.append(node)
-    return odd
-
-
-def minimum_weight_perfect_matching(graph, odd_vertices):
-    odd_graph = graph.subgraph(odd_vertices)
-    return nx.algorithms.matching.max_weight_matching(odd_graph, maxcardinality=True)
-
-
-def eulerian_circuit(graph):
-    return list(nx.eulerian_circuit(graph))
-
-
-def christofides_tsp(points):
-    complete_graph = create_complete_graph(points)
-    min_spanning_tree = minimum_spanning_tree(complete_graph)
-    odd_vert = odd_vertices(min_spanning_tree)
-    min_weight_matching = minimum_weight_perfect_matching(complete_graph, odd_vert)
-
-    augmented_graph = complete_graph.copy()
-    for edge in min_weight_matching:
-        augmented_graph.add_edge(edge[0], edge[1], weight=complete_graph[edge[0]][edge[1]]['weight'])
-
-    eulerian_circuit_edges = eulerian_circuit(augmented_graph)
-
-    visited = set()
-    circuit = []
-    for edge in eulerian_circuit_edges:
-        if edge[0] not in visited:
-            circuit.append(edge[0])
-            visited.add(edge[0])
-
-    circuit.append(circuit[0])
-
-    circuit = list(dict.fromkeys(circuit))
-
-    total = sum(complete_graph[circuit[i]][circuit[i + 1]]['weight'] for i in range(len(circuit) - 1))
-
-    return circuit, total
-
-
-points = [(0, 0), (1, 2), (2, 4), (3, 1), (4, 3)]
-optimal_path, total_cost = christofides_tsp(points)
-print("Optimal Path:", optimal_path)
-print("Total Cost:", total_cost)
+    print(christofides(G))
