@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 class Graph:
     def __init__(self):
         self.graph = defaultdict(list)
@@ -47,12 +48,20 @@ class Graph:
 
         return matching
 
-# Example usage:
-g = Graph()
-g.add_edge(1, 2, 2)
-g.add_edge(1, 3, 3)
-g.add_edge(2, 3, 1)
-g.add_edge(2, 4, 4)
-g.add_edge(3, 4, 2)
 
-g.chinese_postman()
+# Example usage:
+g1 = Graph()
+g1.add_edge(1, 2, 3)
+g1.add_edge(2, 3, 1)
+g1.add_edge(3, 1, 2)
+
+g1.chinese_postman()
+
+g2 = Graph()
+g2.add_edge(1, 2, 3)
+g2.add_edge(2, 3, 1)
+g2.add_edge(3, 4, 5)
+g2.add_edge(4, 1, 2)
+
+g2.chinese_postman()
+

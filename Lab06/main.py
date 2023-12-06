@@ -18,7 +18,7 @@ def karatsuba(x, y):
     return (X * 10 ** (2 * m)) + (Z * 10 ** m) + Y
 
 
-num_bits = 300
+num_bits = 256
 n1 = random.getrandbits(num_bits)
 n2 = random.getrandbits(num_bits)
 

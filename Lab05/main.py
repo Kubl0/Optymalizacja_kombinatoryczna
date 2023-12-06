@@ -1,8 +1,4 @@
-from itertools import permutations
-
 import networkx as nx
-import numpy as np
-
 
 def triangle(e1, e2, e3):
     return e1 + e2 >= e3 and e1 + e3 >= e2 and e2 + e3 >= e1
@@ -57,15 +53,12 @@ def christofides(G):
     eulerian_circuit = nx.eulerian_circuit(H)
 
     # 5
-
     hamiltonian_circuit = []
-    for u, v in eulerian_circuit:
-        if u not in hamiltonian_circuit:
-            hamiltonian_circuit.append(u)
-        if v not in hamiltonian_circuit:
-            hamiltonian_circuit.append(v)
+    for edge in eulerian_circuit:
+        if edge[0] not in hamiltonian_circuit:
+            hamiltonian_circuit.append(edge[0])
 
-    # hamiltonian_circuit.append(hamiltonian_circuit[0])
+    hamiltonian_circuit.append(hamiltonian_circuit[0])
 
     weight = 0
     for i in range(len(hamiltonian_circuit) - 1):
@@ -76,9 +69,13 @@ def christofides(G):
 
 if __name__ == "__main__":
     G = nx.Graph()
-    # G.add_nodes_from([0, 1, 2, 3, 4, 5])
-    # G.add_weighted_edges_from([(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 4), (1, 3, 5), (2, 3, 6), (2, 4, 7), (2, 5, 8), (3, 4, 9), (3, 5, 10), (4, 5, 11)])
+    G.add_nodes_from([0, 1, 2, 3, 4, 5])
+    G.add_weighted_edges_from(
+        [(0, 1, 1), (0, 2, 2), (0, 3, 3), (1, 2, 4), (1, 3, 5), (2, 3, 6), (2, 4, 7), (2, 5, 8), (3, 4, 9), (3, 5, 10),
+         (4, 5, 11)])
+    print(christofides(G))
 
+    G = nx.Graph()
     G.add_nodes_from([0, 1, 2, 3, 4])
     G.add_weighted_edges_from(
         [(0, 1, 1), (0, 2, 1), (0, 3, 2), (0, 4, 3), (1, 2, 2), (1, 3, 2), (1, 4, 3), (2, 3, 3), (2, 4, 2), (3, 4, 2)])
