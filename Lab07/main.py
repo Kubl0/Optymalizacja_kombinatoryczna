@@ -8,8 +8,8 @@ class Task:
         self.dependencies = dependencies
         self.earliest_start = 0
         self.earliest_finish = 0
-        self.latest_start = 1000
-        self.latest_finish = 1000
+        self.latest_start = float('inf')
+        self.latest_finish = float('inf')
 
     def __str__(self):
         return f"ES: {self.earliest_start}, EF: {self.earliest_finish}, LS: {self.latest_start}, LF: {self.latest_finish}"
@@ -47,6 +47,23 @@ def cpm(tasks):
     if not is_acyclic(graph):
         raise Exception("Graph is not acyclic")
 
+    calculate_earliest_times(tasks)
+    calculate_latest_times(tasks)
+
+    for task in tasks:
+        print(f"{chr(ord('A') + tasks.index(task))}: {task}")
+
+    critical_path = []
+    for task in tasks:
+        if task.earliest_start == task.latest_start and task.earliest_finish == task.latest_finish:
+            critical_path.append(tasks.index(task))
+
+    print(f"\nCritical path: {critical_path}")
+    visualize_graph(tasks)
+    gantt(tasks)
+
+
+def calculate_earliest_times(tasks):
     for task in tasks:
         if len(task.dependencies) == 0:
             task.earliest_start = 0
@@ -55,6 +72,8 @@ def cpm(tasks):
             task.earliest_start = max([tasks[dependency].earliest_finish for dependency in task.dependencies])
             task.earliest_finish = task.earliest_start + task.duration
 
+
+def calculate_latest_times(tasks):
     for task in reversed(tasks):
         if tasks.index(task) == len(tasks) - 1:
             task.latest_finish = task.earliest_finish
@@ -68,18 +87,6 @@ def cpm(tasks):
         if len(depending_tasks) > 0:
             task.latest_finish = min([t.latest_start for t in depending_tasks])
             task.latest_start = task.latest_finish - task.duration
-
-    for task in tasks:
-        print(f"{chr(ord('A') + tasks.index(task))}: {task}")
-
-    critical_path = []
-    for task in tasks:
-        if task.earliest_start == task.latest_start and task.earliest_finish == task.latest_finish:
-            critical_path.append(tasks.index(task))
-
-    print(f"\nCritical path: {critical_path}")
-    visualize_graph(tasks)
-    gantt(tasks)
 
 
 def gantt(tasks):
@@ -102,7 +109,7 @@ def visualize_graph(tasks):
 
     for index, task in enumerate(tasks):
         G.add_node(chr(ord('A') + index),
-                   label=f"{chr(ord('A') + index)}\nES: {task.earliest_start}\nEF: {task.earliest_finish}\nLS: {task.latest_start}\nLF: {task.latest_finish}")
+                   label=f"{chr(ord('A') + index)}\nES: {task.earliest_start}\nEF: {task.earliest_finish}\nLS: {task.latest_start}\nLF: {task.latest_finish} \n {task.duration}")
 
         for dependency in task.dependencies:
             G.add_edge(chr(ord('A') + dependency), chr(ord('A') + index))
